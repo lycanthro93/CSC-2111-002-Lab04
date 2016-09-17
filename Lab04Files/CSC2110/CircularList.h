@@ -2,6 +2,7 @@
 #define CIRCULARLIST_H
 
 #include "CircularListIterator.h"
+#include <cmath>
 
 // #include "Drawable.h"
 // #include "Line.h"
@@ -63,21 +64,22 @@ DoubleNode<T>* CircularList<T>::find(int index)
  
    if (index >= loc_pos)
    {
-                                    //distance without the bridge (next refs, positive)
-                                    //distance using the bridge (prev refs, negative)
+
+      dist_next = index - loc_pos;    //distance without the bridge (next refs, positive)
+      dist_prev = -1 * (loc_pos + (sze - index));     //distance using the bridge (prev refs, negative)
    }
    else
    {
-                                    //distance without the bridge (prev refs, negative)
-                                    //distance using the bridge (next refs, positive)
+      dist_prev = -1 * (loc_pos - index); //distance without the bridge (prev refs, negative)
+      dist_next = index + (sze - loc_pos); //distance using the bridge (next refs, positive)
    }
 
    //DO THIS which distance is smaller?
    //find the minimum distance using absolute value
    //set min_dist to the smaller value, keeping the sign
 
-
-
+   if(std::abs(dist_prev) < std::abs(dist_next)) min_dist = dist_prev;
+   else min_dist = dist_next;
 
 
 
@@ -142,21 +144,29 @@ void CircularList<T>::remove(int index)
 
       if (sze == 1) //special case
       {
-
-
-
-
-
-
+        loc->setPrev(NULL);
+        loc->setNext(NULL);
+        
+        delete loc; // Free memory
+        loc_pos = 0;
       }
       else
       {
-         //use local variables
+        //use local variables
+        // I believe these are adequately named.
+        DoubleNode<T>* curr = find(index);
+        DoubleNode<T>* prev = curr->getPrev();
+        DoubleNode<T>* next = curr->getNext();
+        prev->setNext(next);
+        next->setPrev(prev);
 
+        delete curr; // Free memory
+        
+        // Resize, just in case
+        if(index == sze) loc_pos = 1;
+        else loc_pos = index;
 
-
-
-
+        loc = next;
 
       }
       sze--;
